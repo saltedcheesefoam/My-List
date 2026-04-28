@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My List</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== THEME ===== */
+    :root {
+      --bg: #0f0f0f;
+      --surface: #181818;
+      --surface2: #222;
+      --border: #2a2a2a;
+      --accent: #f0a500;
+      --accent2: #e06b00;
+      --text: #f0ede8;
+      --muted: #777;
+      --green: #4caf50;
+      --red: #e05252;
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: linear-gradient(135deg, #1a1200 0%, #0f0f0f 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 32px 24px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-left h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: 3px;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .header-left p {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 4px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .total-box {
+      text-align: right;
+    }
+
+    .total-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .total-amount {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      line-height: 1.1;
+    }
+
+    #admin-toggle-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+
+    #admin-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+    #admin-toggle-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+
+    /* ===== NOTICE BAR ===== */
+    #status-bar {
+      background: #1a1200;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      padding: 8px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: none;
+    }
+
+    #status-bar.show { display: block; }
+    #status-bar.error { color: var(--red); background: #1a0a0a; }
+    #status-bar.success { color: var(--green); background: #0a1a0a; }
+
+    /* ===== SETUP BANNER ===== */
+    #setup-banner {
+      margin: 24px auto;
+      max-width: 700px;
+      background: #1a1200;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+    }
+
+    #setup-banner h2 { color: var(--accent); margin-bottom: 12px; font-size: 1.1rem; }
+    #setup-banner ol { padding-left: 20px; color: var(--muted); font-size: 0.88rem; line-height: 2; }
+    #setup-banner ol li span { color: var(--text); }
+    #setup-banner code {
+      background: var(--surface2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: var(--accent);
+    }
+
+    /* ===== ADMIN PANEL ===== */
+    #admin-panel {
+      display: none;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+    }
+
+    #admin-panel.show { display: block; }
+
+    .admin-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .master-key-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .master-key-row input {
+      flex: 1;
+      min-width: 200px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+    }
+
+    .master-key-row input:focus { outline: none; border-color: var(--accent); }
+
+    #key-status {
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--surface2);
+      color: var(--muted);
+    }
+
+    #key-status.ok { background: #0a1a0a; color: var(--green); }
+
+    /* Item form */
+    #add-item-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) { #add-item-form { grid-template-columns: 1fr; } }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-group label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      transition: border 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 72px; }
+
+    .form-group select option { background: var(--surface2); }
+
+    .form-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .btn {
+      padding: 10px 22px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.15s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger { background: transparent; color: var(--red); border: 1px solid #3a1a1a; }
+    .btn-danger:hover { background: #1a0a0a; }
+    .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+
+    /* ===== MAIN CONTENT ===== */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* Controls row */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .item-count {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .sort-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .sort-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .sort-btn.active, .sort-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ===== ITEM GRID ===== */
+    #items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    /* ===== ITEM CARD ===== */
+    .item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .item-card:hover {
+      border-color: #3a3a3a;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+
+    .card-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      background: var(--surface2);
+      display: block;
+    }
+
+    .card-img-placeholder {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--border);
+      font-size: 2.5rem;
+    }
+
+    .card-body {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .store-badge {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .store-amazon { background: #1a1000; color: #f0a500; border: 1px solid #3a2a00; }
+    .store-aliexpress { background: #1a0a0a; color: #e05252; border: 1px solid #3a1a1a; }
+    .store-other { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+    .card-price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .card-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .card-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .buy-link {
+      flex: 1;
+      display: block;
+      text-align: center;
+      background: var(--accent);
+      color: #000;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: background 0.15s;
+      letter-spacing: 0.3px;
+    }
+
+    .buy-link:hover { background: var(--accent2); }
+
+    .admin-card-actions {
+      display: none;
+      gap: 6px;
+    }
+
+    .admin-mode .admin-card-actions { display: flex; }
+
+    /* Edit modal */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #modal-overlay.show { display: flex; }
+
+    #modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    #modal-box h2 { margin-bottom: 20px; font-size: 1rem; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+
+    #modal-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 500px) { #modal-form { grid-template-columns: 1fr; } }
+
+    /* Empty state */
+    #empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+
+    #empty-state .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
+    #empty-state p { font-size: 0.9rem; line-height: 1.7; }
+
+    /* Password modal */
+    #pw-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #pw-overlay.show { display: flex; }
+
+    #pw-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 320px;
+      text-align: center;
+    }
+
+    #pw-box h3 { color: var(--accent); font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 2px; margin-bottom: 8px; }
+    #pw-box p { color: var(--muted); font-size: 0.82rem; margin-bottom: 20px; }
+
+    #pw-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      text-align: center;
+      letter-spacing: 3px;
+      margin-bottom: 12px;
+    }
+
+    #pw-input:focus { outline: none; border-color: var(--accent); }
+    #pw-error { color: var(--red); font-size: 0.8rem; margin-bottom: 10px; min-height: 18px; }
+
+    /* Loading spinner */
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 60px auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ===== CONFIG (edit these) ===== -->
+<script>
+  const CONFIG = {
+    // ---- Step 1: Get these from jsonbin.io (see setup banner below) ----
+    BIN_ID: '69f1362536566621a8025d69',           // e.g. '6615f1234abc...'
+    ACCESS_KEY: '$2a$10$MVdKE6.ConKMq7BfVXmwQeLxyGyKqE30jKwYOE2LYv8/lLv2udDwK',       // read-only key, safe to leave in this file
+    // ---- Step 2: Set your admin password ----
+    ADMIN_PASSWORD: 'salted_cheese_fm',
+    // ---- Step 3: Customize your page title ----
+    PAGE_TITLE: 'Sim Racing Startup',
+    PAGE_SUBTITLE: 'I would love to start sim racing, here is a high-value list.',
+  };
+</script>
+<!-- ================================ -->
+
+<header>
+  <div class="header-left">
+    <h1 id="page-title">My List</h1>
+    <p id="page-subtitle">things i want</p>
+  </div>
+  <div class="header-right">
+    <div class="total-box">
+      <div class="total-label">Total</div>
+      <div class="total-amount" id="total-display">$0.00</div>
+    </div>
+    <button id="admin-toggle-btn" onclick="promptAdminLogin()">Admin</button>
+  </div>
+</header>
+
+<div id="status-bar"></div>
+
+<!-- Setup banner (shown if no bin ID) -->
+<div id="setup-banner" style="display:none; padding: 16px 24px;">
+  <div style="max-width:700px; margin:0 auto; background:#1a1200; border:1px solid #f0a500; border-radius:12px; padding:24px 28px;">
+    <h2 style="color:#f0a500; margin-bottom:12px;">⚙️ Setup Required (one-time, ~3 min)</h2>
+    <ol style="padding-left:20px; color:#777; font-size:0.88rem; line-height:2.2;">
+      <li><span>Go to <a href="https://jsonbin.io" target="_blank" style="color:#f0a500;">jsonbin.io</a> → Sign up free</span></li>
+      <li><span>Click <b style="color:#f0ede8">+ Create Bin</b> → paste <code>{"items":[]}</code> → Save</span></li>
+      <li><span>Copy the <b style="color:#f0ede8">BIN ID</b> from the URL bar</span></li>
+      <li><span>Go to <b style="color:#f0ede8">API Keys</b> → create a <b style="color:#f0ede8">Secret Key</b> (your Master Key)</span></li>
+      <li><span>Create an <b style="color:#f0ede8">Access Key</b> → select your bin → Read-Only</span></li>
+      <li><span>Open this HTML file in a text editor → fill in the <code>CONFIG</code> block at the top</span></li>
+      <li><span>Upload to GitHub Pages (instructions below the list)</span></li>
+    </ol>
+    <div style="margin-top:16px; padding-top:16px; border-top:1px solid #2a2a2a;">
+      <p style="color:#f0a500; font-size:0.8rem; font-weight:600; margin-bottom:6px;">🌐 FREE HOSTING (GitHub Pages):</p>
+      <ol style="padding-left:20px; color:#777; font-size:0.85rem; line-height:2;">
+        <li><span>Go to <a href="https://github.com" target="_blank" style="color:#f0a500;">github.com</a> → Sign up / log in</span></li>
+        <li><span>New repo → name it anything → set to <b style="color:#f0ede8">Public</b> → Create</span></li>
+        <li><span>Upload this <code>list.html</code> file → rename it <code>index.html</code></span></li>
+        <li><span>Settings → Pages → Branch: main → folder: / (root) → Save</span></li>
+        <li><span>Your URL: <code>https://yourusername.github.io/reponame</code> — ready in ~1 min</span></li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- Admin panel -->
+<div id="admin-panel">
+  <div style="max-width:1200px; margin:0 auto;">
+    <div class="admin-section-title">Master Key (write access)</div>
+    <div class="master-key-row">
+      <input type="password" id="master-key-input" placeholder="Paste your JSONBin Master Key here (stored locally, never shared)" />
+      <button class="btn btn-secondary" onclick="saveMasterKey()">Save Key</button>
+      <span id="key-status">Not set</span>
+    </div>
+
+    <div class="admin-section-title">Add New Item</div>
+    <div id="add-item-form">
+      <div class="form-group">
+        <label>Item Name *</label>
+        <input type="text" id="f-name" placeholder="e.g. GReddy Turbo Kit" />
+      </div>
+      <div class="form-group">
+        <label>Price * (e.g. 249.99)</label>
+        <input type="number" id="f-price" step="0.01" min="0" placeholder="0.00" />
+      </div>
+      <div class="form-group">
+        <label>Store</label>
+        <select id="f-store">
+          <option value="amazon">Amazon</option>
+          <option value="aliexpress">AliExpress</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Buy Link (URL)</label>
+        <input type="url" id="f-link" placeholder="https://..." />
+      </div>
+      <div class="form-group">
+        <label>Photo URL</label>
+        <input type="url" id="f-photo" placeholder="https://... (right-click image → Copy image address)" />
+      </div>
+      <div class="form-group full">
+        <label>Description</label>
+        <textarea id="f-desc" placeholder="What is it? Why do you want it?"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addItem()">+ Add Item</button>
+        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="controls-row">
+    <div class="item-count" id="item-count">0 items</div>
+    <div class="sort-row">
+      <button class="sort-btn active" onclick="sortItems('added')" id="sort-added">Latest</button>
+      <button class="sort-btn" onclick="sortItems('price-asc')" id="sort-price-asc">Price ↑</button>
+      <button class="sort-btn" onclick="sortItems('price-desc')" id="sort-price-desc">Price ↓</button>
+    </div>
+  </div>
+
+  <div id="items-grid">
+    <div class="spinner"></div>
+  </div>
+</main>
+
+<!-- Edit modal -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal-box">
+    <h2>Edit Item</h2>
+    <div id="modal-form">
+      <input type="hidden" id="m-id" />
+      <div class="form-group">
+        <label>Name *</label>
+        <input type="text" id="m-name" />
+      </div>
+      <div class="form-group">
+        <label>Price *</label>
+        <input type="number" id="m-price" step="0.01" min="0" />
+      </div>
+      <div class="form-group">
+        <label>Store</label>
+        <select id="m-store">
+          <option value="amazon">Amazon</option>
+          <option value="aliexpress">AliExpress</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Buy Link</label>
+        <input type="url" id="m-link" />
+      </div>
+      <div class="form-group">
+        <label>Photo URL</label>
+        <input type="url" id="m-photo" />
+      </div>
+      <div class="form-group full">
+        <label>Description</label>
+        <textarea id="m-desc"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Password modal -->
+<div id="pw-overlay">
+  <div id="pw-box">
+    <h3>ADMIN</h3>
+    <p>Enter your admin password</p>
+    <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPassword()" />
+    <div id="pw-error"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="checkPassword()">Unlock</button>
+    <button class="btn btn-secondary" style="width:100%; margin-top:8px;" onclick="closePwModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+  // ===== STATE =====
+  let items = [];
+  let isAdmin = false;
+  let sortMode = 'added';
+  let editingId = null;
+
+  // ===== INIT =====
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('page-title').textContent = CONFIG.PAGE_TITLE;
+    document.getElementById('page-subtitle').textContent = CONFIG.PAGE_SUBTITLE;
+    document.title = CONFIG.PAGE_TITLE;
+
+    if (!CONFIG.BIN_ID || !CONFIG.ACCESS_KEY) {
+      document.getElementById('setup-banner').style.display = 'block';
+      document.getElementById('items-grid').innerHTML = '';
+      return;
+    }
+
+    loadItems();
+    checkMasterKeyStatus();
+  });
+
+  // ===== JSONBIN API =====
+  const BIN_URL = `https://api.jsonbin.io/v3/b/${CONFIG.BIN_ID}`;
+
+  async function loadItems() {
+    try {
+      const res = await fetch(`${BIN_URL}/latest`, {
+        headers: { 'X-Access-Key': CONFIG.ACCESS_KEY }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      items = data.record.items || [];
+      renderItems();
+    } catch (e) {
+      showStatus('Failed to load items. Check your BIN_ID and ACCESS_KEY.', 'error');
+      document.getElementById('items-grid').innerHTML = '';
+    }
+  }
+
+  async function saveItems() {
+    const masterKey = getMasterKey();
+    if (!masterKey) {
+      showStatus('Paste your Master Key in the admin panel first.', 'error');
+      return false;
+    }
+    try {
+      const res = await fetch(BIN_URL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': masterKey
+        },
+        body: JSON.stringify({ items })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || `HTTP ${res.status}`);
+      }
+      return true;
+    } catch (e) {
+      showStatus(`Save failed: ${e.message}`, 'error');
+      return false;
+    }
+  }
+
+  // ===== RENDER =====
+  function renderItems() {
+    const grid = document.getElementById('items-grid');
+    const sorted = getSorted();
+
+    if (sorted.length === 0) {
+      grid.innerHTML = `
+        <div id="empty-state">
+          <div class="empty-icon">🛒</div>
+          <p>No items yet.<br>${isAdmin ? 'Add your first item using the form above.' : 'Check back soon.'}</p>
+        </div>`;
+    } else {
+      grid.innerHTML = sorted.map((item, i) => renderCard(item, i)).join('');
+    }
+
+    updateTotal();
+    document.getElementById('item-count').textContent =
+      `${sorted.length} item${sorted.length !== 1 ? 's' : ''}`;
+  }
+
+  function renderCard(item, i) {
+    const storeClass = `store-${item.store || 'other'}`;
+    const storeLabel = { amazon: 'Amazon', aliexpress: 'AliExpress', other: 'Other' }[item.store] || 'Other';
+    const price = parseFloat(item.price) || 0;
+    const imgHtml = item.photo
+      ? `<img class="card-img" src="${esc(item.photo)}" alt="${esc(item.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        + `<div class="card-img-placeholder" style="display:none">📦</div>`
+      : `<div class="card-img-placeholder">📦</div>`;
+
+    const adminActions = `
+      <div class="admin-card-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openEditModal('${item.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteItem('${item.id}')">Del</button>
+      </div>`;
+
+    const buyBtn = item.link
+      ? `<a class="buy-link" href="${esc(item.link)}" target="_blank" rel="noopener">Buy Now →</a>`
+      : `<span style="flex:1; color:var(--muted); font-size:0.8rem; padding:8px 0;">No link added</span>`;
+
+    return `
+      <div class="item-card" style="animation-delay:${i * 40}ms">
+        ${imgHtml}
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="store-badge ${storeClass}">${storeLabel}</span>
+            <span class="card-price">$${price.toFixed(2)}</span>
+          </div>
+          <div class="card-name">${esc(item.name)}</div>
+          ${item.desc ? `<div class="card-desc">${esc(item.desc)}</div>` : ''}
+        </div>
+        <div class="card-footer">
+          ${buyBtn}
+          ${adminActions}
+        </div>
+      </div>`;
+  }
+
+  function updateTotal() {
+    const total = items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+    document.getElementById('total-display').textContent = `$${total.toFixed(2)}`;
+  }
+
+  // ===== SORTING =====
+  function getSorted() {
+    const arr = [...items];
+    if (sortMode === 'price-asc') arr.sort((a, b) => (parseFloat(a.price)||0) - (parseFloat(b.price)||0));
+    else if (sortMode === 'price-desc') arr.sort((a, b) => (parseFloat(b.price)||0) - (parseFloat(a.price)||0));
+    else arr.sort((a, b) => (b.added || 0) - (a.added || 0));
+    return arr;
+  }
+
+  function sortItems(mode) {
+    sortMode = mode;
+    ['added','price-asc','price-desc'].forEach(m => {
+      document.getElementById(`sort-${m}`)?.classList.toggle('active', m === mode);
+    });
+    renderItems();
+  }
+
+  // ===== ADD ITEM =====
+  async function addItem() {
+    const name = document.getElementById('f-name').value.trim();
+    const price = document.getElementById('f-price').value;
+    if (!name || price === '') return showStatus('Name and price are required.', 'error');
+
+    const item = {
+      id: Date.now().toString(),
+      name,
+      price: parseFloat(price),
+      store: document.getElementById('f-store').value,
+      link: document.getElementById('f-link').value.trim(),
+      photo: document.getElementById('f-photo').value.trim(),
+      desc: document.getElementById('f-desc').value.trim(),
+      added: Date.now()
+    };
+
+    items.push(item);
+    const ok = await saveItems();
+    if (ok) {
+      renderItems();
+      clearForm();
+      showStatus('Item added!', 'success');
+    } else {
+      items.pop();
+    }
+  }
+
+  function clearForm() {
+    ['f-name','f-price','f-link','f-photo','f-desc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-store').value = 'amazon';
+  }
+
+  // ===== DELETE =====
+  async function deleteItem(id) {
+    if (!confirm('Delete this item?')) return;
+    const prev = [...items];
+    items = items.filter(i => i.id !== id);
+    const ok = await saveItems();
+    if (ok) { renderItems(); showStatus('Item deleted.', 'success'); }
+    else items = prev;
+  }
+
+  // ===== EDIT MODAL =====
+  function openEditModal(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    editingId = id;
+    document.getElementById('m-id').value = id;
+    document.getElementById('m-name').value = item.name;
+    document.getElementById('m-price').value = item.price;
+    document.getElementById('m-store').value = item.store || 'other';
+    document.getElementById('m-link').value = item.link || '';
+    document.getElementById('m-photo').value = item.photo || '';
+    document.getElementById('m-desc').value = item.desc || '';
+    document.getElementById('modal-overlay').classList.add('show');
+  }
+
+  async function saveEdit() {
+    const name = document.getElementById('m-name').value.trim();
+    const price = document.getElementById('m-price').value;
+    if (!name || price === '') return showStatus('Name and price required.', 'error');
+
+    const idx = items.findIndex(i => i.id === editingId);
+    if (idx === -1) return;
+
+    const prev = { ...items[idx] };
+    items[idx] = {
+      ...items[idx],
+      name,
+      price: parseFloat(price),
+      store: document.getElementById('m-store').value,
+      link: document.getElementById('m-link').value.trim(),
+      photo: document.getElementById('m-photo').value.trim(),
+      desc: document.getElementById('m-desc').value.trim()
+    };
+
+    const ok = await saveItems();
+    if (ok) {
+      renderItems();
+      closeModal();
+      showStatus('Item updated!', 'success');
+    } else {
+      items[idx] = prev;
+    }
+  }
+
+  function closeModal(e) {
+    if (e && e.target !== document.getElementById('modal-overlay')) return;
+    document.getElementById('modal-overlay').classList.remove('show');
+    editingId = null;
+  }
+
+  // ===== ADMIN AUTH =====
+  function promptAdminLogin() {
+    if (isAdmin) {
+      exitAdmin();
+      return;
+    }
+    document.getElementById('pw-error').textContent = '';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-overlay').classList.add('show');
+    setTimeout(() => document.getElementById('pw-input').focus(), 100);
+  }
+
+  function checkPassword() {
+    const val = document.getElementById('pw-input').value;
+    if (val === CONFIG.ADMIN_PASSWORD) {
+      enterAdmin();
+    } else {
+      document.getElementById('pw-error').textContent = 'Wrong password.';
+      document.getElementById('pw-input').value = '';
+    }
+  }
+
+  function closePwModal() {
+    document.getElementById('pw-overlay').classList.remove('show');
+  }
+
+  function enterAdmin() {
+    isAdmin = true;
+    closePwModal();
+    document.getElementById('admin-panel').classList.add('show');
+    document.getElementById('admin-toggle-btn').classList.add('active');
+    document.getElementById('admin-toggle-btn').textContent = '✓ Admin';
+    document.body.classList.add('admin-mode');
+    renderItems();
+  }
+
+  function exitAdmin() {
+    isAdmin = false;
+    document.getElementById('admin-panel').classList.remove('show');
+    document.getElementById('admin-toggle-btn').classList.remove('active');
+    document.getElementById('admin-toggle-btn').textContent = 'Admin';
+    document.body.classList.remove('admin-mode');
+    renderItems();
+  }
+
+  // ===== MASTER KEY =====
+  function getMasterKey() {
+    return localStorage.getItem('list_master_key') || '';
+  }
+
+  function saveMasterKey() {
+    const val = document.getElementById('master-key-input').value.trim();
+    if (!val) return;
+    localStorage.setItem('list_master_key', val);
+    document.getElementById('master-key-input').value = '';
+    checkMasterKeyStatus();
+    showStatus('Master key saved to this browser.', 'success');
+  }
+
+  function checkMasterKeyStatus() {
+    const el = document.getElementById('key-status');
+    if (!el) return;
+    if (getMasterKey()) {
+      el.textContent = '✓ Key saved';
+      el.className = 'ok';
+    } else {
+      el.textContent = 'Not set';
+      el.className = '';
+    }
+  }
+
+  // ===== UTILS =====
+  function esc(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  let statusTimer;
+  function showStatus(msg, type = '') {
+    const bar = document.getElementById('status-bar');
+    bar.textContent = msg;
+    bar.className = `show${type ? ' ' + type : ''}`;
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => bar.classList.remove('show'), 4000);
+  }
+</script>
+</body>
+</html>
